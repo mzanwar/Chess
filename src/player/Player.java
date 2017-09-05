@@ -1,6 +1,6 @@
-package Player;
+package player;
 
-import Move.Move;
+import move.Move;
 import pieces.HasColor;
 import pieces.Piece;
 
@@ -11,6 +11,11 @@ public class Player implements HasColor {
     String name;
     String type;
     Color color;
+
+    public List<Piece> getPieces() {
+        return pieces;
+    }
+
     List<Piece> pieces;
 
     public Player(String name, String type, Color color, List<Piece> pieces) {

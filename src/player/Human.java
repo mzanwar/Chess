@@ -1,12 +1,12 @@
-package Player;
+package player;
 
-import Move.Move;
+import move.Move;
 import pieces.Piece;
 
 import java.util.List;
 
-public class AI extends Player {
-    public AI(String name, String type, Color color, List<Piece> pieces) {
+public class Human extends Player {
+    public Human(String name, String type, Color color, List<Piece> pieces) {
         super(name, type, color, pieces);
     }
 

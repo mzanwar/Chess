@@ -2,6 +2,7 @@ package GUI;
 
 import board.Board;
 import board.BoardSize;
+import board.BoardState;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.event.EventHandler;
@@ -17,9 +18,14 @@ import javafx.scene.paint.Paint;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Pair;
+import move.Move;
+import move.MoveGenerator;
 import pieces.BoardLocation;
+import pieces.HasColor;
+import pieces.Piece;
 
 import java.io.*;
+import java.text.CollationElementIterator;
 import java.util.*;
 
 
@@ -30,17 +36,19 @@ public class BoardGUI extends Application implements BoardSize {
 
     static Board board;
 
+    boolean whiteTurn = true;
+    List<Move> mvBlack = new ArrayList<>();
+    List<Move> mvWhite = new ArrayList<>();
+
     private HashMap<BoardLocation.location, Point2D> boardCoordinates = new HashMap<>();
 
     public BoardGUI(Board board) {
         this.board = board;
         setupMap();
-        System.out.println(boardCoordinates);
     }
 
     public BoardGUI() {
         setupMap();
-        System.out.println(boardCoordinates);
     }
 
     public void startGame() {
@@ -75,8 +83,9 @@ public class BoardGUI extends Application implements BoardSize {
         annotations.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                System.out.println("Mouse Click");
-                board.move(BoardLocation.location.D1, BoardLocation.location.D4);
+                System.out.println("Making a random move");
+                randomValidMove();
+                refresh();
             }
         });
         brush = canvas.getGraphicsContext2D();
@@ -91,10 +100,67 @@ public class BoardGUI extends Application implements BoardSize {
 
     }
 
-    public void refresh(){
+    private void randomValidMove() {
+        if (whiteTurn) {
+            whiteMoves();
+        } else {
+            blackMoves();
+        }
+        whiteTurn = !whiteTurn;
+    }
+
+    private void blackMoves() {
+        mvBlack = MoveGenerator.generate(new BoardState(HasColor.Color.BLACK, board), board.getPlayers().get(1));
+        Collections.sort(mvBlack);
+        Move move;
+        //pick random move
+        if (mvBlack.size() > 0) {
+            move = mvBlack.get(0);
+            System.out.println(" Black Move: " + move.getFrom() + " " + move.getTo());
+            board.move(move.getFrom(), move.getTo());
+        }
+    }
+
+    private void drawMoves() {
+        if (annotationsBrush == null) return;
+        annotationsBrush.setFont(new Font("Arial", 10));
+        Point2D offset = new Point2D(85, 105);
+
+        annotationsBrush.setFill(Color.BLACK);
+        mvBlack.forEach(move -> {
+            final Piece piece = move.getPiece();
+            final double posx = boardCoordinates.get(move.getTo()).getX() + offset.getX();
+            final double posy = boardCoordinates.get(move.getTo()).getY() + offset.getY();
+            annotationsBrush.fillText(piece.getType(), posx, posy);
+        });
+
+        annotationsBrush.setFill(Color.WHITE);
+        mvWhite.forEach(move -> {
+            final Piece piece = move.getPiece();
+            final double posx = boardCoordinates.get(move.getTo()).getX() + offset.getX();
+            final double posy = boardCoordinates.get(move.getTo()).getY() + offset.getY();
+            annotationsBrush.fillText(piece.getType(), posx, posy);
+        });
+    }
+
+    private void whiteMoves() {
+        mvWhite = MoveGenerator.generate(new BoardState(HasColor.Color.WHITE, board), board.getPlayers().get(0));
+        Move move;
+        Collections.sort(mvWhite);
+        //pick random move
+        Collections.sort(mvWhite);
+        if (mvWhite.size() > 0) {
+            move = mvWhite.get(0);
+            System.out.println(" White Move: " + move.getFrom() + " " + move.getTo());
+            board.move(move.getFrom(), move.getTo());
+        }
+    }
+
+    public void refresh() {
         if (annotationsBrush == null) return;
         annotationsBrush.clearRect(50, 50, 800, 800);
         drawPieces(annotationsBrush);
+//        drawMoves();
     }
 
     private void drawPieces(GraphicsContext brush) {

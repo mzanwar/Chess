@@ -1,11 +1,10 @@
 package pieces;
 
-public abstract class Piece implements HasColor, BoardLocation {
+public abstract class Piece implements HasColor, BoardLocation, HasMoves {
     private String name;
     private String type;
     private Color color;
     private location coordinate;
-
 
     public Piece(String type, Color color, location coordinate) {
         this.name = this.getClass().getSimpleName();
@@ -23,6 +22,7 @@ public abstract class Piece implements HasColor, BoardLocation {
         this.coordinate = coordinate;
     }
 
+
     public location getCoordinate() {
         return coordinate;
     }
@@ -38,4 +38,5 @@ public abstract class Piece implements HasColor, BoardLocation {
     public Color getColor() {
         return color;
     }
+
 }
